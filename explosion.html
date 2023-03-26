@@ -1,0 +1,206 @@
+<html>
+<head>
+    <style>
+        body {
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+                background-color: #222;
+            }
+        .btn{
+            text-align: center;
+        }
+
+        #startButton, #resetButton {
+           
+            margin-top: 20px;
+            padding: 15px;
+            font-size: 18px;
+            color: rgb(255, 255, 255);
+            background-color: rgba(0, 0, 0, 0);
+            border: 1px solid rgb(255, 255, 255);
+            border-radius: 25px;
+            cursor: pointer;
+        }
+
+        #resetButton {
+            margin-left: 10px;
+        }
+
+        h1 {
+            font-family: 'Open Sans', sans-serif; 
+            font-size: 36px; 
+            color: white; 
+            padding : 10px;
+            text-align: center; 
+        }
+        .color{
+            animation: hue-rotate 3s infinite;
+        }
+
+        @keyframes hue-rotate {
+            0% {
+                filter: hue-rotate(0deg);
+            }
+            50% {
+                filter: hue-rotate(180deg);
+            }
+            100% {
+                filter: hue-rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Exercice sur l'explosion</h1>
+    <div class="btn">
+        <button id="startButton">Démarrer la Simulation de l'explosion </button>
+        <button id="startButton" onclick="reset()">Réinitialiser la simulation</button>
+    </div>
+    <svg viewBox="-100 -100 200 200" style="width:100%;height:100%;overflow:hidden;" class="color">
+        <g id="boules" transform="scale(1,-1)" fill="red" stroke="black" style="cursor:pointer;" class="color"></g>
+    </svg>
+</body>
+
+
+<script>
+    // Variable pour demarrer ou arreter
+    let run = false;
+
+    // Les variables
+    const n = 300; // nombre de boules, ici 300 boules
+    const frottement = 0.01; // Le coefficient de frottement
+    const d = 3; // densité des boules
+    const dt = 0.5; // intervalle de temps
+    const rmax = 30; // rayon maximum des boules
+    const g = 9.41; // accélération due à la gravité
+    const theta_max = Math.PI / 2; // angle maximum d'incidence
+    const vmax = 200; // vitesse maximum
+
+    let cx = Array(n).fill(0); 
+    let cy = Array(n).fill(0); 
+    let vx = Array(n); 
+    let vy = Array(n); 
+    let r = Array(n); 
+    let c = Array(n);
+    let m = Array(n); 
+
+    for(let i=0; i < n; i++){
+        // Calcul d'une vitesse et d'un angle d'incidence aléatoires
+        let v = Math.random() * vmax;
+        let theta_i = Math.random() * 2 * theta_max - theta_max;
+
+        // Assignation des vitesses initiales
+        vx[i] = v * Math.sin(theta_i);
+        vy[i] = v * Math.cos(theta_i);
+
+        // Assignation des rayons, coefficients de frottement et masses
+        r[i] = Math.random() * rmax;
+        c[i] = frottement * r[i];
+        m[i] = Math.PI * (r[i] * r[i] * d);
+
+    }
+
+    function getRandomColor() {
+        const letters = '0123456789ABCDEF';
+        let color = '#';
+        for (let i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
+
+    // Récupération du groupe contenant les boules
+    let boules = document.getElementById("boules");
+
+    // Ajout des cercles dans le groupe
+    for(let i=0; i < n; i++){
+        let circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("cx", cx[i]);
+        circle.setAttribute("cy", cy[i]);
+        circle.setAttribute("vx", vx[i]);
+        circle.setAttribute("vy", vy[i]);
+        circle.setAttribute("r", r[i]);
+        circle.setAttribute("fill", getRandomColor()); // attribution d'une couleur aléatoire
+        boules.append(circle);
+    }
+
+    function update() {
+        let elements = boules.getElementsByTagName("circle");
+        const frottement = 0.01; // Je rechange la valeur du coefficient de frottement en le mettant dans une nouvelle val
+        const dt = 0.03; // Une nouvelle Intervalle de temps
+
+        for (let i = 0; i < n; i++) {
+            // Ces deux ligne permettent de calculer les nouvelles vitesse
+            const new_vx = vx[i] - (frottement * vx[i] * dt) + (0 * dt);
+            const new_vy = vy[i] - (frottement * vy[i] * dt) - (g * dt);
+
+            // Cette partie calcul les nouvelles position
+            const new_cx = cx[i] + (new_vx * dt);
+            const new_cy = cy[i] + (new_vy * dt);
+
+            // On met à jour les attributs des cercles
+            elements[i].setAttribute("cx", new_cx); 
+            elements[i].setAttribute("cy", new_cy); 
+            elements[i].setAttribute("vx", new_vx); 
+            elements[i].setAttribute("vy", new_vy);
+            
+            // on met à jours les variables globals
+            cx[i] = new_cx;
+            cy[i] = new_cy;
+            vx[i] = new_vx;
+            vy[i] = new_vy;
+
+    }
+    if (run) {
+        setTimeout(update, 1);
+        }
+    }
+
+    // Fonction qui lance
+    function stop_and_go(){
+        run = !run;
+        if (run){
+            update();
+        }
+    }
+    document.addEventListener("click", stop_and_go);
+
+    function reset() {
+    cx = Array(n).fill(0); 
+    cy = Array(n).fill(0); 
+    vx = Array(n); 
+    vy = Array(n); 
+    r = Array(n); 
+    c = Array(n);
+    m = Array(n); 
+
+    for(let i=0; i < n; i++){
+        let v = Math.random() * vmax;
+        let theta_i = Math.random() * 2 * theta_max - theta_max;
+
+        
+        vx[i] = v * Math.sin(theta_i);
+        vy[i] = v * Math.cos(theta_i);
+
+        
+        r[i] = Math.random() * rmax;
+        c[i] = frottement * r[i];
+        m[i] = Math.PI * (r[i] * r[i] * d);
+
+        
+        let elements = boules.getElementsByTagName("circle");
+        elements[i].setAttribute("cx", cx[i]); 
+        elements[i].setAttribute("cy", cy[i]); 
+        elements[i].setAttribute("vx", vx[i]); 
+        elements[i].setAttribute("vy", vy[i]);
+    }
+
+    // Relance du programme
+    stop_and_go();
+    }
+
+
+</script>
+</html>
