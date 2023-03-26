@@ -16,3 +16,7 @@ You can customize the simulation by changing the variables in the JavaScript cod
 
 ## License
 This code is released under the MIT License. See the LICENSE file for more information.
+
+## Image : 
+
+![Capture](https://user-images.githubusercontent.com/75495075/227800074-3220a003-42ac-45a7-9018-60067b5ff70e.PNG)
